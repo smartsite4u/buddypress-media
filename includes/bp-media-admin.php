@@ -45,6 +45,7 @@ function bp_media_add_admin_menu() {
 
     $tab = isset( $_GET['page'] )  ? $_GET['page'] : "bp-media-settings";
     add_action('admin_print_styles-' . $tab, 'bp_media_admin_enqueue');
+    
 }
 
 add_action(bp_core_admin_hook(), 'bp_media_add_admin_menu');

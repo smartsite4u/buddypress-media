@@ -69,16 +69,6 @@ function bp_media_activity_parent_content_filter($activity_content) {
 }
 //add_filter('bp_get_activity_parent_content', 'bp_media_activity_parent_content_filter', 1);
 
-//function bp_media_activity_parent__content_filter($content) {
-//	add_shortcode('bp_media_action', 'bp_media_shortcode_action');
-//	add_shortcode('bp_media_content', 'bp_media_shortcode_content');
-//	$content=do_shortcode($content);
-//	remove_shortcode('bp_media_action');
-//	remove_shortcode('bp_media_content');
-//	return $content;
-//}
-//add_filter('bp_get_activity_parent_content', 'bp_media_activity_parent_content_filter');
-
 function bp_media_delete_button_handler($link) {
 	if(bp_current_component()=='media')
 		$link=str_replace('delete-activity ', 'delete-activity-single ', $link);
@@ -88,6 +78,12 @@ add_filter('bp_get_activity_delete_link','bp_media_delete_button_handler');
 
 function bp_media_items_count_filter ($title,$nav_item) {
 	global $bp_media_count;
+	$bp_media_count = wp_parse_args($bp_media_count,array(
+		'images'	=>	0,
+		'videos'	=>	0,
+		'audio'		=>	0,
+		'albums'	=>	0
+	));
 	switch($nav_item['slug']){
 		case BP_MEDIA_SLUG	:
 			$count=  intval($bp_media_count['images'])+intval($bp_media_count['videos'])+intval($bp_media_count['audio']);

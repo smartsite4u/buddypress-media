@@ -96,12 +96,16 @@ function bp_media_update_count() {
 		( post_mime_type LIKE 'image%' OR post_mime_type LIKE 'audio%' OR post_mime_type LIKE 'video%' OR post_type LIKE 'bp_media_album')
 	GROUP BY post_author";
 	$result = $wpdb->get_results($query);
+	if(!is_array($result))
+		return false;
+
 	foreach ($result as $obj) {
+
 		$count = array(
-			'images' => $obj->Images,
-			'videos' => $obj->Videos,
-			'audio' => $obj->Audio,
-			'albums'=>	$obj->Albums
+			'images' => isset($obj->Images)?$obj->Images:0,
+			'videos' => isset($obj->Videos)?$obj->Videos:0,
+			'audio' => isset($obj->Audio)?$obj->Audio:0,
+			'albums'=>	isset($obj->Albums)?$obj->Albums:0
 			);
 		bp_update_user_meta($obj->post_author, 'bp_media_count', $count);
 	}
@@ -223,5 +227,10 @@ function bp_media_update_album_activity($album,$current_time = true,$delete_medi
 			}
 		}
 	}
+}
+
+function bp_media_wp_comment_form_mod() {
+	global $bp_media_current_entry;
+	echo '<input type="hidden" name="redirect_to" value="'.$bp_media_current_entry->get_url().'">' ;
 }
 ?>

@@ -6,7 +6,7 @@
  */
 function bp_media_handle_uploads() {
 	global $bp,$bp_media_options;
-	$bp_media_options = get_option('bp_media_options',array(
+	$bp_media_options = get_site_option('bp_media_options',array(
 		'videos_enabled'	=>	true,
 		'audio_enabled'		=>	true,
 		'images_enabled'	=>	true,
@@ -263,7 +263,7 @@ function bp_media_footer() { ?>
 }
 
 global $bp_media_options;
-if($bp_media_options['remove_linkback']!='1')
+if(isset($bp_media_options['remove_linkback'])&&$bp_media_options['remove_linkback']!='1')
 	add_action('bp_footer','bp_media_footer');
 
 function bp_media_upload_enqueue(){
@@ -550,5 +550,5 @@ function bp_media_activity_create_after_add_media($media,$hidden=false){
 		add_post_meta($media->get_id(),'bp_media_child_activity',$activity_id);
 	}
 }
-add_action('bp_media_after_add_media','bp_media_activity_create_after_add_media',10,2)
+add_action('bp_media_after_add_media','bp_media_activity_create_after_add_media',10,2);
 ?>

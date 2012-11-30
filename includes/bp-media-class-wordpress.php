@@ -250,7 +250,7 @@ class BP_Media_Host_Wordpress {
 	 *
 	 */
 	function get_media_activity_content() {
-		global $bp_media_counter, $bp_media_default_excerpts;
+		global $bp_media_counter, $bp_media_default_excerpts;                
 		$attachment_id = $this->id;
 		$activity_content = '<div class="bp_media_title"><a href="' . $this->url . '" title="' . $this->description . '">' . wp_html_excerpt($this->name, $bp_media_default_excerpts['activity_entry_title']) . '</a></div>';
 		$activity_content .='<div class="bp_media_content">';
@@ -271,13 +271,13 @@ class BP_Media_Host_Wordpress {
 			case 'image' :
 				$image_array = image_downsize($attachment_id, 'bp_media_activity_image');
 				$activity_content.='<a href="' . $this->url . '" title="' . $this->name . '"><img src="' . $image_array[0] . '" id="bp_media_image_' . $this->id . '_' . $bp_media_counter++ . '" alt="' . $this->name . '" /></a>';
-				$type = 'image';
+				$type = 'image';                                
 				break;
 			default :
 				return false;
 		}
 		$activity_content .= '</div>';
-		$activity_content .= '<div class="bp_media_description">' . wp_html_excerpt($this->description, $bp_media_default_excerpts['activity_entry_description']) . '</div>';
+		$activity_content .= '<div class="bp_media_description">' . wp_html_excerpt($this->description, $bp_media_default_excerpts['activity_entry_description']) . '</div>';                                
 		return $activity_content;
 	}
 
@@ -336,7 +336,8 @@ class BP_Media_Host_Wordpress {
 	 * Returns the HTML for title of the single entry page of the Media Entry
 	 */
 	function get_media_single_title(){
-		$content = '<div class="bp_media_title">' . wp_html_excerpt($this->name, $bp_media_default_excerpts['single_entry_title']) . '</div>;';
+		global $bp_media_default_excerpts;
+		$content = '<div class="bp_media_title">' . wp_html_excerpt($this->name, $bp_media_default_excerpts['single_entry_title']) . '</div>';
 		return $content;
 	}
 
@@ -511,7 +512,7 @@ class BP_Media_Host_Wordpress {
 	 *
 	 * @return bool True when the update is successful, False when the update fails
 	 */
-	function update_media($args=array()){
+	function update_media($args=array()){                
 		$defaults=array(
 			'name'	=>	$this->name,
 			'description'	=>	$this->description,
@@ -526,6 +527,36 @@ class BP_Media_Host_Wordpress {
 		$this->init($this->id);
 		return $result;
 	}
+        
+        /**	 
+         * Updates activity content's title and description sync with the editing of Media
+	 *	 
+	 */
+        function update_media_activity(){
+            global $wpdb, $bp, $current_user;            
+            $q = $wpdb->prepare( "SELECT id FROM {$bp->activity->table_name} WHERE type = %s AND item_id = %d", 'media_upload', $this->id);
+            $activities = $wpdb->get_results($q);            
+            if(isset($activities) && count($activities) > 0){                
+                    $activities_template = new BP_Activity_Template(array(
+                    'max' => TRUE,
+                    'user_id' => $current_user,
+                    'in' => $activities[0]->id
+                ));
+                foreach ($activities_template->activities as $activity){                
+                        $args = array(
+                                'content' => $this->get_media_activity_content(),
+                                'id' => $activity->id,
+                                'type' => 'media_upload',
+                                'action' => apply_filters( 'bp_media_added_media', sprintf( __( '%1$s added a %2$s', 'bp-media'), bp_core_get_userlink( $this->get_author() ), '<a href="' . $this->get_url() . '">' . $this->get_media_activity_type() . '</a>' ) ),
+                                'primary_link' => $this->get_url(),
+                                'item_id' => $this->get_id(),
+                                'recorded_time' => $activity->date_recorded,
+                                'user_id' => $this->get_author()
+                        );
+                    $activity_id = bp_media_record_activity($args);
+                }            
+            }
+        }
 
 	/**
 	 * Deletes the Media Entry
@@ -660,5 +691,4 @@ class BP_Media_Host_Wordpress {
 	function get_type(){
 		return $this->type;
 	}
-}
-?>
+} ?>

@@ -469,7 +469,7 @@ function bp_media_bug_report(){
             $flgSend = @mail( $strTo, $strSubject, null, $strHeader);  // @ = No Show Error //
             
             if( $flgSend ){  
-                $bp_media_support_messages[]="<b>Your Bug report sent Successfully</b>";
+                $bp_media_support_messages[]="<b>Thank you, Your Bug report sent Successfully</b>";
             }else{  
                 $bp_media_support_errors[]="<b>Mail could not be sent</b>";
             }

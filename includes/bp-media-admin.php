@@ -95,10 +95,10 @@ function bp_media_add_admin_menu() {
 		<div class="updated"><p><?php foreach($bp_media_messages as $message) echo $message.'<br/>'; ?></p></div><?php
 	}
 
-	add_menu_page( 'BP Media Component', 'BP Media', 'manage_options', 'bp-media-settings', 'bp_media_settings_page' );
-	add_submenu_page( 'bp-media-settings', __( 'BP-Media Settings', 'bp-media' ), __( 'Settings', 'bp-media' ), 'manage_options', 'bp-media-settings', "bp_media_settings_page" );
-	add_submenu_page( 'bp-media-settings', __( 'BP-Media Addons', 'bp-media' ), __( 'Addons', 'bp-media' ), 'manage_options', 'bp-media-addons', "bp_media_settings_page" );
-	add_submenu_page( 'bp-media-settings', __( 'BP-Media Support', 'bp-media' ), __( 'Support ', 'bp-media' ), 'manage_options', 'bp-media-support', "bp_media_settings_page" );
+	add_menu_page( 'Buddypress Media Component', 'BP Media', 'manage_options', 'bp-media-settings', 'bp_media_settings_page' );
+	add_submenu_page( 'bp-media-settings', __( 'Buddypress Media Settings', 'bp-media' ), __( 'Settings', 'bp-media' ), 'manage_options', 'bp-media-settings', "bp_media_settings_page" );
+	add_submenu_page( 'bp-media-settings', __( 'Buddypress Media Addons', 'bp-media' ), __( 'Addons', 'bp-media' ), 'manage_options', 'bp-media-addons', "bp_media_settings_page" );
+	add_submenu_page( 'bp-media-settings', __( 'Buddypress Media Support', 'bp-media' ), __( 'Support ', 'bp-media' ), 'manage_options', 'bp-media-support', "bp_media_settings_page" );
 
     $tab = isset( $_GET['page'] )  ? $_GET['page'] : "bp-media-settings";
     add_action('admin_print_styles-' . $tab, 'bp_media_admin_enqueue');
@@ -584,7 +584,7 @@ add_action('admin_enqueue_scripts', 'bp_media_admin_enqueue');
 /**
  * Adds a tab for Media settings in the BuddyPress settings page
  */
-function bp_media_admin_tab() {
+function bp_media_admin_tab(){
 
     if(current_user_can('manage_options')){
         $tabs_html    = '';
@@ -593,12 +593,12 @@ function bp_media_admin_tab() {
         $tabs = array();
 
         // Check to see which tab we are on
-        $tab = isset( $_GET['page'] )  ? $_GET['page'] : "bp-media-settings";
+        $tab = isset( $_GET['page'] ) ? $_GET['page'] : "bp-media-settings";
         /* BP Media */
         $tabs[] = array(
             'href' => bp_get_admin_url( add_query_arg( array( 'page' => 'bp-media-settings'  ), 'admin.php' ) ),
-            'title' => __( 'BP Media', 'bp-media' ),
-            'name' => __( 'BP Media', 'bp-media' ),
+            'title' => __( 'Buddypress Media', 'bp-media' ),
+            'name' => __( 'Buddypress Media', 'bp-media' ),
             'class' => ($tab == 'bp-media-settings' || $tab == 'bp-media-addons' || $tab == 'bp-media-support') ? $active_class : $idle_class
         );
 
@@ -609,7 +609,7 @@ function bp_media_admin_tab() {
     }
 }
 
-add_action('bp_admin_tabs','bp_media_admin_tab');
+add_action( 'bp_admin_tabs','bp_media_admin_tab' );
 
 
 /**

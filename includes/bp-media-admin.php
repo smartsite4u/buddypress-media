@@ -80,14 +80,16 @@ function bp_media_add_admin_menu() {
 		$bp_media_errors = apply_filters('bp_media_settings_errors',$bp_media_errors);
 	}
 	else if(isset($_GET['bp_media_refresh_count'])){
+        
 		check_admin_referer('bp_media_refresh_count','wp_nonce');
 		if(!bp_media_update_count())
 			$bp_media_errors[]="<b>Recounting Failed</b>";
 		else
 			$bp_media_messages[]="<b>Recounting of media files done successfully</b>";
+        
 	}
-
-	if(isset($bp_media_errors) && count($bp_media_errors)) { ?>
+    
+    if(isset($bp_media_errors) && count($bp_media_errors)) { ?>
 		<div class="error"><p><?php foreach($bp_media_errors as $error) echo $error.'<br/>'; ?></p></div><?php
 	} if(isset($bp_media_messages) && count($bp_media_messages)){  ?>
 		<div class="updated"><p><?php foreach($bp_media_messages as $message) echo $message.'<br/>'; ?></p></div><?php
@@ -125,11 +127,12 @@ function bp_media_on_load_page() {
     switch ( $tab ) {
         case 'bp-media-addons' :
             // All metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
-            add_meta_box('bp-media-addons-list_metabox',__('BuddyPress Media Addons for Audio/Video Conversion','bp-media'),'bp_media_addons_list','bp-media-settings', 'normal', 'core' );
+            add_meta_box('bp_media_addons_list_metabox',__('BuddyPress Media Addons for Audio/Video Conversion','bp-media'),'bp_media_addons_list','bp-media-settings', 'normal', 'core' );
             break;
         case 'bp-media-support' :
             // All metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
-            add_meta_box( 'post_summaries_options_metabox', __('BuddyPress Media Support', 'rtPanel'), 'bp_media_support', 'bp-media-settings', 'normal', 'core' );
+            add_meta_box( 'bp_media_support_metabox', __('BuddyPress Media Support', 'rtPanel'), 'bp_media_support', 'bp-media-settings', 'normal', 'core' );
+            add_meta_box( 'bp_media_bug_report_metabox', __('Submit a Bug Report', 'rtPanel'), 'bp_media_bug_report', 'bp-media-settings', 'normal', 'core' );
             break;
         case $tab :
             // All metaboxes registered during load page can be switched off/on at "Screen Options" automatically, nothing special to do therefore
@@ -142,10 +145,9 @@ function bp_media_on_load_page() {
 
 
 function bp_media_settings_page(){
-	global $bp_media_errors,$bp_media_messages;
-    $tab = isset( $_GET['page'] )  ? $_GET['page'] : "bp-media-settings";
+    
+    $tab = isset( $_GET['page'] )  ? $_GET['page'] : "bp-media-settings";    ?>
 
-    ?>
     <div class="wrap bp-media-admin">
         <?php //screen_icon( 'buddypress' ); ?>
         <div id="icon-buddypress" class="icon32"><br></div>
@@ -291,7 +293,7 @@ function bp_media_admin_menu() {
 
     <?php do_action('bp_media_extension_options'); ?>
 
-    <p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>
+    <p class="submit"><input type="submit" name="submit" id="submit" class="button-primary bp-media-submit" value="Save Changes"></p>
     <div class="clear"></div><?php
 }
 
@@ -338,7 +340,7 @@ function bp_media_settings_options(){
             </tr>
         </tbody>
     </table>
-    <p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>
+    <p class="submit"><input type="submit" name="submit" id="submit" class="button-primary bp-media-submit" value="Save Changes"></p>
     <div class="clear"></div>
 <?php }
 
@@ -387,7 +389,7 @@ function bp_media_addons_list(){ ?>
 <?php }
 
 
-function bp_media_support(){ global $current_user; ?>
+function bp_media_support(){  ?>
 
     <div class="bp-media-support">
         <h2><?php _e('Need Help/Support?', 'bp-media');?></h2>
@@ -399,33 +401,113 @@ function bp_media_support(){ global $current_user; ?>
         <br/>
 
         <h2><?php _e('Hire Us!', 'bp-media');?></h2>
-
         <h4><a href="http://rtcamp.com/contact/?purpose=hire"><?php _e('We are available for customisation and premium support. Get on touch with us. :-)', 'bp-media');?></a></h4>
-<!--
-        <div class="bp-media-form" id="premium-support-form" >
-            <h4><?php _e('Please fill the form for premium support'); ?></h4>
-            <ul>
-                <li>
-                    <label class="bp-media-label" for="ur_name"><?php _e('Your Name:','bp-media');?></label><input class="bp-media-input" id="ur_name" type="text" name="premium_support[ur_name]" value="<?php echo (isset($_REQUEST['premium_support']['ur_name']))? $_REQUEST['premium_support']['ur_name'] : $current_user->user_login; ?>"/>
-                </li>
-                <li>
-                    <label class="bp-media-label" for="ur_email"><?php _e('Your Email-Id:','bp-media');?></label><input id="ur_email" class="bp-media-input" type="text" name="premium_support[ur_email]" value="<?php echo (isset($_REQUEST['premium_support']['ur_name']))? $_REQUEST['premium_support']['ur_name'] : get_option('admin_email'); ?>"/>
-                </li>
-                <li>
-                    <label class="bp-media-label" for="ur_query"><?php _e('Details:','bp-media');?></label><textarea id="ur_query" class="bp-media-textarea" type="text" name="premium_support[ur_query]"/><?php echo (isset($_REQUEST['premium_support']['ur_query']))? $_REQUEST['premium_support']['ur_query'] : ''; ?></textarea>
-                </li>
-                <li>
-                    <label class="bp-media-label" for="ur_budget"><?php _e('Your Budget:','bp-media');?></label><input id="ur_budget" class="bp-media-input" type="text" name="premium_support[ur_budget]" value="<?php echo (isset($_REQUEST['premium_support']['ur_budget']))? $_REQUEST['premium_support']['ur_budget'] : ''; ?>"/>
-                </li>
-                <li>
-                    <label class="bp-media-label" for="ur_delivery_date"><?php _e('Expected Delivery Date:','bp-media');?></label><input id="ur_delivery_date" class="bp-media-input" type="text" name="premium_support[ur_delivery_date]" value="<?php echo (isset($_REQUEST['premium_support']['ur_delivery_date']))? $_REQUEST['premium_support']['ur_delivery_date'] : ''; ?>"/>
-                </li>
-            </ul>
-            <p class="submit"><input type="submit" name="premium_form_submit" id="submit" class="button-primary" value="Submit"></p>
-        </div><!-- .premium-support-form-->
         <br/>
     </div>
+<?php }
 
+
+
+function bp_media_bug_report(){
+    
+    $bp_media_support_errors=array();
+	$bp_media_support_messages=array();
+    
+    if( isset( $_REQUEST['submit-report'] ) ){
+        
+        if( empty( $_REQUEST['bug_report']['ur_name'] ) ){
+            $bp_media_support_errors[]="<b>Please Enter Name</b>";
+        }
+        if ( empty( $_REQUEST['bug_report']['ur_email'] )  ) {
+            $bp_media_support_errors[]="<b>Please Enter Valid Email Address</b>";  
+        }        
+        if ( !empty( $_REQUEST['bug_report']['ur_email'] ) && !bp_media_is_valid_email( trim( $_REQUEST['bug_report']['ur_email'] ) ) ) {
+            $bp_media_support_errors[]="<b>Please Enter Valid Email Address</b>";  
+        }        
+        if( empty( $_REQUEST['bug_report']['ur_subject'] ) ){
+            $bp_media_support_errors[]="<b>Please Enter Subject</b>";  
+        }
+        if( empty( $_REQUEST['bug_report']['ur_query'] ) ){
+            $bp_media_support_errors[]="<b>Please Enter Details</b>";  
+        }
+        if( empty( $bp_media_support_errors ) ){
+            
+            $strTo = 'umesh.nevase@gmail.com';
+            
+            $strSubject = $_REQUEST['bug_report']['ur_subject'];  
+
+            $strMessage = nl2br($_REQUEST['bug_report']['ur_query']);  
+
+            /* Uniqid Session */  
+            $strSid = md5(uniqid(time()));  
+
+            /* Creating Header */
+            $strHeader = "";  
+            $strHeader .= "From: ".$_REQUEST['bug_report']['ur_name']."<".$_REQUEST['bug_report']['ur_email'].">";  
+
+            $strHeader .= "MIME-Version: 1.0\n";  
+            $strHeader .= "Content-Type: multipart/mixed; boundary=\"".$strSid."\"\n\n";  
+            $strHeader .= "This is a multi-part message in MIME format.\n";  
+
+            $strHeader .= "--".$strSid."\n";  
+            $strHeader .= "Content-type: text/html; charset=utf-8\n";  
+            $strHeader .= "Content-Transfer-Encoding: 7bit\n\n";  
+            $strHeader .= $strMessage."\n\n";  
+
+            /* Attach file */            
+            if( $_FILES["bug_report"]["name"]["ur_attachment"] != "" ){  
+                $strFilesName = $_FILES["bug_report"]["name"]["ur_attachment"];  
+                $strContent = chunk_split( base64_encode( file_get_contents( $_FILES["bug_report"]["tmp_name"]["ur_attachment"] ) ) );  
+                $strHeader .= "--".$strSid."\n";  
+                $strHeader .= "Content-Type: application/octet-stream; name=\"".$strFilesName."\"\n";  
+                $strHeader .= "Content-Transfer-Encoding: base64\n";  
+                $strHeader .= "Content-Disposition: attachment; filename=\"".$strFilesName."\"\n\n";  
+                $strHeader .= $strContent."\n\n";  
+            }  
+            
+            $flgSend = @mail( $strTo, $strSubject, null, $strHeader);  // @ = No Show Error //
+            
+            if( $flgSend ){  
+                $bp_media_support_messages[]="<b>Your Bug report sent Successfully</b>";
+            }else{  
+                $bp_media_support_errors[]="<b>Mail could not be sent</b>";
+            }
+        }
+    }
+    
+	if(isset($bp_media_support_errors) && count($bp_media_support_errors)) { ?>
+		<div class="bp-media-error"><p><?php foreach($bp_media_support_errors as $error) echo $error.'<br/>'; ?></p></div><?php
+	} if(isset($bp_media_support_messages) && count($bp_media_support_messages)){  ?>
+		<div class="bp-media-updated"><p><?php foreach($bp_media_support_messages as $message) echo $message.'<br/>'; ?></p></div><?php
+	}
+    
+    global $current_user; ?>
+    
+    <div id="support-form" class="bp-media-form">        
+        <ul>
+            <li>
+                <label class="bp-media-label" for="ur_name"><?php _e('Your Name:','bp-media');?></label><input class="bp-media-input" id="ur_name" type="text" name="bug_report[ur_name]" value="<?php echo (isset($_REQUEST['bug_report']['ur_name']))? $_REQUEST['bug_report']['ur_name'] : $current_user->user_login; ?>"/>
+            </li>
+            <li>
+                <label class="bp-media-label" for="ur_email"><?php _e('Your Email-Id:','bp-media');?></label><input id="ur_email" class="bp-media-input" type="text" name="bug_report[ur_email]" value="<?php echo (isset($_REQUEST['bug_report']['ur_email']))? $_REQUEST['bug_report']['ur_email'] : get_option('admin_email'); ?>"/>
+            </li>
+            <li>
+            <label class="bp-media-label" for="ur_site_url"><?php _e('Your Site Url:','bp-media');?></label><input id="ur_site_url" class="bp-media-input" type="text" name="bug_report[ur_site_url]" value="<?php echo (isset($_REQUEST['bug_report']['ur_site_url']))? $_REQUEST['bug_report']['ur_site_url'] : ''; ?>"/>
+            </li>
+            <li>
+                <label class="bp-media-label" for="ur_subject"><?php _e('Subject:','bp-media');?></label><input id="ur_subject" class="bp-media-input" type="text" name="bug_report[ur_subject]" value="<?php echo (isset($_REQUEST['bug_report']['ur_subject']))? $_REQUEST['bug_report']['ur_subject'] : ''; ?>"/>
+            </li>
+            <li>
+                <label class="bp-media-label" for="ur_query"><?php _e('Details:','bp-media');?></label><textarea id="ur_query" class="bp-media-textarea" type="text" name="bug_report[ur_query]"/><?php echo (isset($_REQUEST['bug_report']['ur_query']))? $_REQUEST['bug_report']['ur_query'] : ''; ?></textarea>
+            </li>                                    
+            <li>
+                <label class="bp-media-label" for="ur_attachment"><?php _e('Attachment:','bp-media');?></label><input id="ur_attachment" class="bp-media-input" type="file" name="bug_report[ur_attachment]" value="<?php echo (isset($_REQUEST['bug_report']['ur_attachment']))? $_REQUEST['bug_report']['ur_attachment'] : ''; ?>"/>
+            </li> 
+            <li class="form-footer">
+                <input type="submit" value="Submit" name="submit-report" class="button-primary bp-media-submit" />
+            </li>                
+        </ul>        
+    </div><!-- .submit-bug-box -->      
 <?php }
 
 
@@ -528,4 +610,17 @@ function bp_media_admin_tab() {
 
 add_action('bp_admin_tabs','bp_media_admin_tab');
 
-?>
+
+/**
+ * Check Valid Email
+ * @param string $email
+ * @return boolean 
+ */
+function bp_media_is_valid_email( $email ) {
+  
+  $result = preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/", $email, $match);
+  if( empty( $match[0] ) ) {
+    return false;
+  }
+  return true;
+}

@@ -41,6 +41,8 @@ define('BP_MEDIA_ALBUMS_LABEL', __('Albums', 'bp-media'));
 define('BP_MEDIA_ALBUMS_LABEL_SINGULAR', __('Album', 'bp-media'));
 define('BP_MEDIA_UPLOAD_LABEL', __('Upload', 'bp-media'));
 
+define('BP_MEDIA_SUPPORT_EMAIL', 'support@rtcamp.com');
+
 /* Global variable to store the query */
 global $bp_media_query;
 

@@ -432,7 +432,8 @@ function bp_media_bug_report(){
         }
         if( empty( $bp_media_support_errors ) ){
             
-            $strTo = 'umesh.nevase@gmail.com';
+            $strTo = BP_MEDIA_SUPPORT_EMAIL;
+            
             
             $strSubject = $_REQUEST['bug_report']['ur_subject'];  
 
